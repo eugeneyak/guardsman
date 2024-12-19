@@ -1,4 +1,6 @@
 class Auth
+  Log = ::Log.for(self)
+
   getter host : String
   getter domain : String
   getter validator : Profile::Validator
@@ -14,15 +16,19 @@ class Auth
     case { method, profile }
     when { _, Profile }
       if validator.validate(profile)
+        Log.info { "Successfully authorized as #{profile.id} #{profile.full_name}" }
         render_profile(ctx, profile)
       else
+        Log.info { "Authorization for #{profile.id} #{profile.full_name} failed" }
         ctx.response.status = HTTP::Status::UNAUTHORIZED
       end
 
     when { "GET", Nil }
+      Log.info { "Profile is empty, retirecting to login page" }
       redirect_to_login(ctx)
 
     when { _, Nil }
+      Log.info { "Setting status to UNAUTHORIZED" }
       ctx.response.status = HTTP::Status::UNAUTHORIZED
     end
   end

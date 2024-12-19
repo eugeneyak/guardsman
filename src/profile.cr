@@ -30,6 +30,13 @@ struct Profile
     initialize URI::Params.parse(params)
   end
 
+  def full_name : String
+    String.build do |io|
+      io << first_name
+      io << " " << last_name if last_name
+    end
+  end
+
   def encode
     params = URI::Params.new
 
