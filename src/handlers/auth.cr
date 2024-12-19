@@ -16,10 +16,18 @@ class Auth
     case { method, profile }
     when { _, Profile }
       if validator.validate(profile)
-        Log.info { "Successfully authorized as #{profile.id} #{profile.full_name}" }
+        Log.info &.emit "Successfully authorized", 
+          id: profile.id,
+          name: profile.full_name,
+          host: "#{ctx.request.headers["X-Forwarded-Proto"]}://#{ctx.request.headers["X-Forwarded-Host"]}#{ctx.request.headers["X-Forwarded-Uri"]}"
+
         render_profile(ctx, profile)
       else
-        Log.info { "Authorization for #{profile.id} #{profile.full_name} failed" }
+        Log.info &.emit "Authorization failed", 
+          id: profile.id,
+          name: profile.full_name,
+          host: "#{ctx.request.headers["X-Forwarded-Proto"]}://#{ctx.request.headers["X-Forwarded-Host"]}#{ctx.request.headers["X-Forwarded-Uri"]}"
+
         ctx.response.status = HTTP::Status::UNAUTHORIZED
       end
 
